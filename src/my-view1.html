@@ -1,0 +1,118 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="shared-styles.html">
+
+<!-- FIREBASE imports  -->
+<link rel="import" href="../bower_components/polymerfire/firebase-app.html">
+<link rel="import" href="../bower_components/polymerfire/firebase-auth.html">
+<link rel="import" href="../bower_components/polymerfire/firebase-auth-script.html">
+<link rel="import" href="../bower_components/polymerfire/firebase-database-script.html">
+<link rel="import" href="../bower_components/polymerfire/firebase-storage-script.html">
+<link rel="import" href="../bower_components/polymerfire/firebase-messaging-script.html">
+<link rel="import" href="../bower_components/polymerfire/firebase-query.html">
+
+<link rel="import" href="customElements/ssd-duplicate.html">
+
+
+<dom-module id="my-view1">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+
+        padding: 10px;
+      }
+    </style>
+
+    <div class="card">
+      <div class="circle">1</div>
+      <h1>Demo 1</h1>
+      <p>This page shows off a potential "real-time" check of data quality for data collected and uploaded to ODK. Here is a quick explanation of its function:
+        <ul>
+          <ol>A user submits an ODK form to the Aggregate server.</ol>
+          <ol>The server posts the form data to our server.</ol>
+          <ol>A <a href='https://nodejs.org/'>node-js</a> script parses the data and performs a basic check against previously uploaded data.</ol>
+          <ol>If the form contains an ID that is already present, an alert appears below</ol>
+        </ul>
+      </p>
+      <p>
+    </div>
+    <div class="card" style="float:left;width:30%">
+      <h2>Duplicated IDs within submissions</h2>
+      <p>Click on any of the ids to see the details of the duplicated submissions</p>
+      <template is="dom-repeat" items="{{duplicates}}" as="item">
+        <div class='card'>
+          <paper-button raised  on-tap="_details" id="[[item.$key]]">Id = [[item.$key]]</paper-button>
+          <ssd-duplicate app-name="quality" resp="[[item.$key]]" index="[[index]]"></ssd-duplicate>
+        </div>
+      </template>
+    </div>
+    <div class="card" style="float:left;width:40%">
+
+      <template is="dom-repeat" items="{{posts}}" as="post">
+        <template is="dom-if" if="[[_respIsSelected(post.resp_id_key,frontResp)]]">
+          <h4>Submission:</h4>
+          <ul>
+            <li><span style='font-weight:bold'>Resp_id_key:  </span> {{post.resp_id_key}}</li>
+
+            <li><span style='font-weight:bold'>Date:  </span> {{post.today}}</li>
+            <li><span style='font-weight:bold'>Start Time: </span>  {{post.start}}</li>
+            <li><span style='font-weight:bold'>End Time: </span>  {{post.end}}</li>
+            <li><span style='font-weight:bold'>Uploaded By: </span>  {{post._submitted}}</li>
+          </ul>
+        </template>
+      </template>
+
+    <paper-button raised on-tap="_buttonCheck">Check console</paper-button>
+    <firebase-query id="query" app-name="quality" path="/dups" data="{{duplicates}}"></firebase-query>
+
+    <!-- document for main-details  -->
+    <firebase-query id="posts" app-name="quality" path="/posts" data ="{{posts}}"></firebase-query>
+
+  </template>
+
+  <script>
+    class MyView1 extends Polymer.Element {
+      static get is() { return 'my-view1'; }
+
+      static get properties() {
+        return {
+          duplicates: {
+            type: Array,
+            reflectToAttribute: true,
+          }
+        }
+      }
+
+      _respIsSelected(resp_id,selected_id) {
+        console.log(resp_id);
+        console.log(selected_id);
+        if (resp_id == selected_id) { return true };
+        return false;
+      }
+
+      _buttonCheck() {
+        console.log("ids",this.duplicates);
+      }
+      repeatCheck(e) {
+        console.log("e.id",e.target.id);
+      }
+
+      _details(e) {
+          //on-click, change the "frontId" so the post details list can be filtered
+          this.set("frontResp",e.target.id);
+      }
+    }
+
+    window.customElements.define(MyView1.is, MyView1);
+  </script>
+</dom-module>

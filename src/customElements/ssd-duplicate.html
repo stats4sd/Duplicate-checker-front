@@ -1,0 +1,87 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/polymerfire/firebase-auth.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/polymerfire/firebase-document.html">
+<!-- FIREBASE imports  -->
+<link rel="import" href="../../bower_components/polymerfire/firebase-app.html">
+<link rel="import" href="../../bower_components/polymerfire/firebase-auth.html">
+<link rel="import" href="../../bower_components/polymerfire/firebase-auth-script.html">
+<link rel="import" href="../../bower_components/polymerfire/firebase-database-script.html">
+<link rel="import" href="../../bower_components/polymerfire/firebase-storage-script.html">
+<link rel="import" href="../../bower_components/polymerfire/firebase-messaging-script.html">
+
+<dom-module id="ssd-duplicate">
+<template>
+  <style>
+    :host {
+      display: block;
+      margin: 0 auto;
+    }
+
+  </style>
+
+  <firebase-document app-name="[[appName]]" path="/respondents/[[resp]]" data="{{respondent}}">
+</firebase-document>
+
+  <ul on-tap="_debug">
+    <li><span style='font-weight:bold'>State: </span> {{respondent.state}} </li>
+    <li><span style='font-weight:bold'>EA: </span> {{respondent.ea_name}} </li>
+    <li><span style='font-weight:bold'>Name: </span> {{respondent.name}} </li>
+</ul>
+
+
+
+
+</template>
+
+<script>
+
+     class ssdDuplicate extends Polymer.Element {
+       static get is() { return 'ssd-duplicate'; }
+
+       static get properties () {
+         /**
+          * `appName` represents the name of the firebase-app that was instantiated
+          */
+          return {
+         appName: {
+           type: String,
+           notify: true,
+           reflectToAttribute: true
+         },
+         /**
+          * `user` represents the user object returned by the firebase-auth element
+          */
+         resp: {
+           type: String,
+           notify: true,
+           reflectToAttribute: true
+         },
+         index: {
+           type: Number,
+           notify: true,
+           reflectToAttribute: true
+         },
+
+         debug: {
+           type: Boolean,
+           value: false,
+         },
+
+       }
+      // end properties
+       }
+
+
+      _debug() {
+        console.log("resp",this.respondent)
+      }
+
+
+
+    }
+
+    window.customElements.define(ssdDuplicate.is, ssdDuplicate)
+</script>
+</dom-module>
